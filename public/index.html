@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-graduation-cap"></i> College Student Management System</h1>
+            <p>MongoDB CRUD Operations Demo</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="dashboard">
+                <i class="fas fa-chart-bar"></i> Dashboard
+            </button>
+            <button class="tab-btn" data-tab="add-student">
+                <i class="fas fa-user-plus"></i> Add Student
+            </button>
+            <button class="tab-btn" data-tab="manage-students">
+                <i class="fas fa-users"></i> Manage Students
+            </button>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-students">0</h3>
+                        <p>Total Students</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-courses">0</h3>
+                        <p>Courses</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="avg-gpa">0.0</h3>
+                        <p>Average GPA</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-students">
+                <h2><i class="fas fa-clock"></i> Recent Students</h2>
+                <div id="recent-students-list" class="students-grid">
+                    <!-- Recent students will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Student Tab -->
+        <div id="add-student" class="tab-content">
+            <div class="form-container">
+                <h2><i class="fas fa-user-plus"></i> Add New Student</h2>
+                <form id="student-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="studentId">Student ID *</label>
+                            <input type="text" id="studentId" name="studentId" required placeholder="e.g., STU001">
+                        </div>
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" required placeholder="John">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="lastName" required placeholder="Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required placeholder="john.doe@college.edu">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone *</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="(555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label for="course">Course *</label>
+                            <select id="course" name="course" required>
+                                <option value="">Select Course</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Business Administration">Business Administration</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Biology">Biology</option>
+                                <option value="English Literature">English Literature</option>
+                                <option value="Psychology">Psychology</option>
+                                <option value="Economics">Economics</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Year *</label>
+                            <select id="year" name="year" required>
+                                <option value="">Select Year</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gpa">GPA</label>
+                            <input type="number" id="gpa" name="gpa" min="0" max="4" step="0.01" placeholder="3.50">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Student
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Manage Students Tab -->
+        <div id="manage-students" class="tab-content">
+            <div class="manage-header">
+                <h2><i class="fas fa-users"></i> Manage Students</h2>
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search by name, ID, or course...">
+                    <button id="search-btn" class="btn btn-secondary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </div>
+            <div id="students-list" class="students-table">
+                <!-- Students table will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div id="edit-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-edit"></i> Edit Student</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <form id="edit-form">
+                    <input type="hidden" id="edit-id" name="id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-studentId">Student ID *</label>
+                            <input type="text" id="edit-studentId" name="studentId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-firstName">First Name *</label>
+                            <input type="text" id="edit-firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-lastName">Last Name *</label>
+                            <input type="text" id="edit-lastName" name="lastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-email">Email *</label>
+                            <input type="email" id="edit-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-phone">Phone *</label>
+                            <input type="tel" id="edit-phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-course">Course *</label>
+                            <select id="edit-course" name="course" required>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Business Administration">Business Administration</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Biology">Biology</option>
+                                <option value="English Literature">English Literature</option>
+                                <option value="Psychology">Psychology</option>
+                                <option value="Economics">Economics</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-year">Year *</label>
+                            <select id="edit-year" name="year" required>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-gpa">GPA</label>
+                            <input type="number" id="edit-gpa" name="gpa" min="0" max="4" step="0.01">
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-edit">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Student
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

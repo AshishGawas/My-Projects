@@ -1,0 +1,10 @@
+<% layout('partials/layout') -%>
+<section class="empty">
+  <h1>500 - Server Error</h1>
+  <% if (error) { %>
+    <pre style="text-align:left; white-space:pre-wrap; background:#0e1729; padding:1rem; border:1px solid var(--border); border-radius:8px;"><%= error.stack || error %></pre>
+  <% } else { %>
+    <p>Something went wrong. Please try again later.</p>
+  <% } %>
+  <a href="/" class="btn">Go Home</a>
+</section>

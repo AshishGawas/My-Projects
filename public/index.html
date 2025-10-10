@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contacts</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Contact Manager</h1>
+
+    <form id="contact-form">
+      <input type="hidden" id="contact-id" />
+      <div class="row">
+        <input id="name" placeholder="Name" required />
+        <input id="email" placeholder="Email" type="email" required />
+      </div>
+      <div class="row">
+        <input id="phone" placeholder="Phone" required />
+        <input id="address" placeholder="Address" />
+      </div>
+      <div class="row">
+        <button type="submit">Save</button>
+        <button type="button" id="reset">Reset</button>
+      </div>
+    </form>
+
+    <table id="contacts-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Address</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="/script.js"></script>
+</body>
+</html>

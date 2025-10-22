@@ -1,0 +1,43 @@
+<% layout('partials/layout') -%>
+<section class="header">
+  <h1>Students</h1>
+  <form class="search" method="get" action="/students">
+    <input type="text" name="q" placeholder="Search by name, email or course" value="<%= q || '' %>" />
+    <button class="btn" type="submit">Search</button>
+  </form>
+</section>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Course</th>
+      <th>Year</th>
+      <th>GPA</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (students.length === 0) { %>
+      <tr>
+        <td colspan="6" class="muted">No students found.</td>
+      </tr>
+    <% } %>
+    <% students.forEach(s => { %>
+      <tr>
+        <td><a href="/students/<%= s._id %>"><%= s.name %></a></td>
+        <td><%= s.email %></td>
+        <td><%= s.course %></td>
+        <td><%= s.year %></td>
+        <td><%= s.gpa.toFixed(2) %></td>
+        <td class="actions">
+          <a class="btn btn-small" href="/students/<%= s._id %>/edit">Edit</a>
+          <form method="post" action="/students/<%= s._id %>?_method=DELETE" onsubmit="return confirm('Delete this student?')">
+            <button class="btn btn-danger btn-small" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>

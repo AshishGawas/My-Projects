@@ -1,0 +1,21 @@
+<% layout('partials/layout') -%>
+<article class="card">
+  <header class="card-header">
+    <h1><%= student.name %></h1>
+    <div class="card-actions">
+      <a class="btn btn-small" href="/students/<%= student._id %>/edit">Edit</a>
+      <form method="post" action="/students/<%= student._id %>?_method=DELETE" onsubmit="return confirm('Delete this student?')">
+        <button class="btn btn-danger btn-small" type="submit">Delete</button>
+      </form>
+    </div>
+  </header>
+  <div class="card-body">
+    <p><strong>Email:</strong> <%= student.email %></p>
+    <p><strong>Course:</strong> <%= student.course %></p>
+    <p><strong>Year:</strong> <%= student.year %></p>
+    <p><strong>GPA:</strong> <%= student.gpa.toFixed(2) %></p>
+  </div>
+  <footer class="card-footer">
+    <a class="btn" href="/students">Back to list</a>
+  </footer>
+</article>

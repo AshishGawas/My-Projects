@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['salary_amount'], $_PO
     $amount = (float)$_POST['salary_amount'];
     $month = preg_replace('/[^0-9\-]/', '', $_POST['salary_month']);
     if ($amount >= 0 && preg_match('/^\d{4}-\d{2}$/', $month)) {
-        $stmt = $db->prepare('INSERT INTO salaries (user_id, month, amount) VALUES (?, ?, ?) ON CONFLICT(user_id, month) DO UPDATE SET amount = excluded.amount');
+        $stmt = $db->prepare('INSERT INTO salaries (user_id, month, amount) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE amount = VALUES(amount)');
         $stmt->execute([(int)$user['id'], $month, $amount]);
     }
 }

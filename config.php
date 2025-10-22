@@ -1,16 +1,29 @@
 <?php
 session_start();
 
-// Using SQLite for simplicity (file-based DB)
-// Database file path
-const DB_PATH = __DIR__ . '/data/app.db';
-
+// MySQL connection (override via environment variables)
+// MYSQL_HOST, MYSQL_DB, MYSQL_USER, MYSQL_PASS
 function get_db(): PDO {
     static $pdo = null;
     if ($pdo === null) {
-        $pdo = new PDO('sqlite:' . DB_PATH);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('PRAGMA foreign_keys = ON');
+        $host = getenv('MYSQL_HOST') ?: '127.0.0.1';
+        $db   = getenv('MYSQL_DB') ?: 'savemore';
+        $user = getenv('MYSQL_USER') ?: 'root';
+        $pass = getenv('MYSQL_PASS') ?: '';
+        $charset = 'utf8mb4';
+
+        $options = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ];
+
+        // Connect without specifying DB to ensure database exists
+        $pdo = new PDO("mysql:host={$host};charset={$charset}", $user, $pass, $options);
+        $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$db}` DEFAULT CHARACTER SET {$charset} COLLATE utf8mb4_unicode_ci");
+        $pdo->exec("USE `{$db}`");
+        // Enforce strict mode for safer numeric handling
+        $pdo->exec("SET sql_mode = 'STRICT_ALL_TABLES'");
     }
     return $pdo;
 }
@@ -21,51 +34,51 @@ function init_db(): void {
     // Users table
     $db->exec(<<<SQL
     CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT NOT NULL UNIQUE,
-        password_hash TEXT NOT NULL,
-        name TEXT,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password_hash VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     SQL);
 
-    // Sessions (for password reset tokens)
+    // Password reset tokens
     $db->exec(<<<SQL
     CREATE TABLE IF NOT EXISTS password_resets (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        token TEXT NOT NULL UNIQUE,
-        expires_at INTEGER NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    );
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id INT UNSIGNED NOT NULL,
+        token VARCHAR(64) NOT NULL UNIQUE,
+        expires_at INT NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT fk_password_resets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     SQL);
 
     // Salaries per month
     $db->exec(<<<SQL
     CREATE TABLE IF NOT EXISTS salaries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        month TEXT NOT NULL, -- YYYY-MM
-        amount REAL NOT NULL CHECK (amount >= 0),
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(user_id, month),
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    );
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id INT UNSIGNED NOT NULL,
+        month CHAR(7) NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_user_month (user_id, month),
+        CONSTRAINT fk_salaries_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     SQL);
 
     // Expenses
     $db->exec(<<<SQL
     CREATE TABLE IF NOT EXISTS expenses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        date TEXT NOT NULL, -- YYYY-MM-DD
-        category TEXT NOT NULL,
-        description TEXT,
-        amount REAL NOT NULL CHECK (amount >= 0),
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    );
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id INT UNSIGNED NOT NULL,
+        date DATE NOT NULL,
+        category VARCHAR(64) NOT NULL,
+        description VARCHAR(255) NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT fk_expenses_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     SQL);
 }
 
